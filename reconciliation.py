@@ -27,6 +27,11 @@ def index_transactions_by_key(transactions):
     return entries_hash
 
 
+def label_transactions(transactions, matched_indices):
+    """Devolve cópias das linhas com FOUND ou MISSING acrescentado conforme o índice casou."""
+    return [row + [FOUND if i in matched_indices else MISSING]
+            for i, row in enumerate(transactions)]
+
 
 def reconcile_accounts(primary_transactions_list, secondary_transactions_list):
     """
@@ -35,9 +40,6 @@ def reconcile_accounts(primary_transactions_list, secondary_transactions_list):
     departamento, valor e beneficiário são iguais e as datas diferem em no máximo
     um dia; o casamento é um-para-um e prefere a parceira disponível mais antiga.
     """
-    primary_result_list = []
-    secondary_result_list = []
-
     primary_hash = index_transactions_by_key(primary_transactions_list)
     secondary_hash = index_transactions_by_key(secondary_transactions_list)
 
@@ -61,13 +63,8 @@ def reconcile_accounts(primary_transactions_list, secondary_transactions_list):
                 matched_primary.add(a_idx)
                 matched_secondary.add(b_idx)
                 
-    for i, row in enumerate(primary_transactions_list):
-        label = FOUND if i in matched_primary else MISSING
-        primary_result_list.append(row + [label])
-
-    for i, row in enumerate(secondary_transactions_list):
-        label = FOUND if i in matched_secondary else MISSING
-        secondary_result_list.append(row + [label])
+    primary_result_list = label_transactions(primary_transactions_list, matched_primary)
+    secondary_result_list = label_transactions(secondary_transactions_list, matched_secondary)
 
     return primary_result_list, secondary_result_list
 
