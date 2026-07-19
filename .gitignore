@@ -1,0 +1,33 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Empacotamento / distribuição
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testes / cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Editores / IDEs
+.vscode/
+.idea/
+*.swp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+Desafios*
