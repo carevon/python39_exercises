@@ -10,7 +10,7 @@ ONE_DAY = timedelta(1)
 
 
 def index_transactions_by_key(transactions):
-    """ Group transactions by (department, value, recipient) and sort each bucket by (date, index) """
+    """ Agrupa as transações por (departamento, valor, beneficiario) e ordena cada bucket por (data, index) """
     entries_hash = defaultdict(list)
     for idx, transaction in enumerate(transactions):
         date_obj = date.fromisoformat(transaction[0])
@@ -32,6 +32,23 @@ def label_transactions(transactions, matched_indices):
     return [row + [FOUND if i in matched_indices else MISSING]
             for i, row in enumerate(transactions)]
 
+def match_entries(primary_entries, secondary_entries):
+    """Casa as entradas (data, índice) de uma mesma chave via janela deslizante de ±1 dia,
+    devolvendo os pares (índice_primary, índice_secondary) casados."""
+    matches = []
+    window = deque()
+    j = 0
+    for a_date, a_idx in primary_entries:
+        while j < len(secondary_entries) and secondary_entries[j][0] <= a_date + ONE_DAY:
+            window.append(secondary_entries[j])
+            j += 1
+        while window and window[0][0] < a_date - ONE_DAY:
+            window.popleft()
+        if window:
+            _, b_idx = window.popleft()
+            matches.append((a_idx, b_idx))
+    return matches
+
 
 def reconcile_accounts(primary_transactions_list, secondary_transactions_list):
     """
@@ -50,18 +67,9 @@ def reconcile_accounts(primary_transactions_list, secondary_transactions_list):
         if not secondary_entries:
             continue
         
-        window = deque()
-        j = 0
-        for a_date, a_idx in primary_entries:
-            while j < len(secondary_entries) and secondary_entries[j][0] <= a_date + ONE_DAY:
-                window.append(secondary_entries[j])
-                j += 1
-            while window and window[0][0] < a_date - ONE_DAY:
-                window.popleft()
-            if window:
-                b_date, b_idx = window.popleft()
-                matched_primary.add(a_idx)
-                matched_secondary.add(b_idx)
+        for a_idx, b_idx in match_entries(primary_entries, secondary_entries):
+            matched_primary.add(a_idx)
+            matched_secondary.add(b_idx)
                 
     primary_result_list = label_transactions(primary_transactions_list, matched_primary)
     secondary_result_list = label_transactions(secondary_transactions_list, matched_secondary)
