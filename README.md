@@ -30,6 +30,11 @@ python -m unittest discover -p "test_*.py" -v
 Faz a conciliação (batimento) entre dois grupos de transações financeiras, devolvendo
 cópias das duas listas com uma coluna `FOUND`/`MISSING` acrescentada ao resultado do output.
 
+Três grandes pontos principais:
+O primeiro é que cada transação deve ter um match com um pareamento de um-para-um, onde uma transação não pode ser agrupada depois de um casamento feito.
+O segundo é que a dimensão de data é tolerante (podendo variar de um dia para mais ou para menos), enquanto as outras são totalmente estritas.
+O terceiro é que quando houver mais de uma possibilidade a correspondência deve ser feita com a transação mais cedo.
+
 **Decisões de projeto:**
 
 - **Identidade da transação** o grupo `(departamento, valor, beneficiário)`;  a **data**
